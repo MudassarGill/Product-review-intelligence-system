@@ -1,0 +1,10 @@
+https://dagshub.com/mudassarhussain6533/Product-review-intelligence-system.mlflow
+
+
+import dagshub
+dagshub.init(repo_owner='mudassarhussain6533', repo_name='Product-review-intelligence-system', mlflow=True)
+
+import mlflow
+with mlflow.start_run():
+  mlflow.log_param('parameter name', 'value')
+  mlflow.log_metric('metric name', 1)
