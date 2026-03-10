@@ -2,12 +2,13 @@ import pandas as pd
 import numpy as np
 import os
 import sys
+import yaml
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 import joblib
 import logging
 from sklearn.feature_extraction.text import CountVectorizer
 
-def build_features(train_path: str, test_path: str, out_dir: str):
+def build_features(train_path: str, test_path: str, out_dir: str, max_features: int = 50):
     """
     Load preprocessed data, extract features using CountVectorizer,
     and save the arrays and the trained vectorizer.
@@ -35,8 +36,8 @@ def build_features(train_path: str, test_path: str, out_dir: str):
         y_train = train_df[target_col].values if target_col in train_df.columns else None
         y_test = test_df[target_col].values if target_col in test_df.columns else None
         
-        logging.info("Initializing CountVectorizer with max_features=50")
-        cv = CountVectorizer(max_features=50)
+        logging.info(f"Initializing CountVectorizer with max_features={max_features}")
+        cv = CountVectorizer(max_features=max_features)
         
         logging.info("Fitting and transforming training data")
         X_train = cv.fit_transform(train_df['Cleaned_Text']).toarray()
@@ -77,7 +78,12 @@ def main():
             logging.error(f"Processed data not found at {train_path}. Please run data_preprocessing.py first.")
             return
             
-        build_features(train_path, test_path, out_dir)
+        with open("params.yaml", "r") as f:
+            params = yaml.safe_load(f)
+        
+        max_features = params['feature_engineering']['max_features']
+            
+        build_features(train_path, test_path, out_dir, max_features)
         logging.info("Feature engineering script completed successfully.")
         
     except Exception as e:

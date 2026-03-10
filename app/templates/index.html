@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Review Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --neutral: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 95%;
+            height: 120px;
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: var(--text-light);
+            padding: 15px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        button:disabled {
+            background-color: #475569;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-panel {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: rgba(15, 23, 42, 0.4);
+            display: none;
+            border-left: 5px solid transparent;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-panel.positive {
+            display: block;
+            border-color: var(--success);
+        }
+
+        .result-panel.negative {
+            display: block;
+            border-color: var(--danger);
+        }
+
+        .result-panel.neutral {
+            display: block;
+            border-color: var(--neutral);
+        }
+
+        .sentiment-label {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            text-transform: capitalize;
+        }
+        
+        .positive .sentiment-label { color: var(--success); }
+        .negative .sentiment-label { color: var(--danger); }
+        .neutral .sentiment-label { color: var(--neutral); }
+
+        .loader {
+            display: none;
+            margin: 20px auto;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Product Review Intelligence</h1>
+        <p>AI-powered sentiment analysis for customer feedback</p>
+    </div>
+
+    <textarea id="review-text" placeholder="Type a product review here... (e.g. 'I absolutely loved this product, it worked perfectly!')"></textarea>
+    
+    <button id="analyze-btn" onclick="analyzeSentiment()">Analyze Sentiment</button>
+    <div class="loader" id="loader"></div>
+
+    <div id="result-panel" class="result-panel">
+        <h2 class="sentiment-label" id="sentiment"></h2>
+        <p style="margin:0; color:var(--text-muted); font-size:14px;">Log Probability: <span id="probability">--</span></p>
+    </div>
+</div>
+
+<script>
+    async function analyzeSentiment() {
+        const text = document.getElementById('review-text').value.trim();
+        if (!text) return;
+
+        const btn = document.getElementById('analyze-btn');
+        const loader = document.getElementById('loader');
+        const resultPanel = document.getElementById('result-panel');
+        const sentimentDisplay = document.getElementById('sentiment');
+        const probabilityDisplay = document.getElementById('probability');
+
+        // UI Loading State
+        btn.style.display = 'none';
+        loader.style.display = 'block';
+        resultPanel.className = 'result-panel';
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
+            });
+
+            const data = await response.json();
+
+            // Handle Response
+            loader.style.display = 'none';
+            btn.style.display = 'block';
+
+            if(response.ok) {
+                const sentiment = data.sentiment.toLowerCase();
+                resultPanel.className = `result-panel ${sentiment}`;
+                sentimentDisplay.innerText = data.sentiment;
+                
+                // Show confidence if available (LogReg can output probabilities)
+                if(data.confidence) {
+                    probabilityDisplay.innerText = `${(data.confidence * 100).toFixed(1)}%`;
+                } else {
+                    probabilityDisplay.innerText = "N/A";
+                }
+            } else {
+                alert("Error analyzing sentiment: " + data.detail);
+            }
+
+        } catch (err) {
+            loader.style.display = 'none';
+            btn.style.display = 'block';
+            alert("Failed to connect to the server.");
+            console.error(err);
+        }
+    }
+</script>
+
+</body>
+</html>
