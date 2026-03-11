@@ -8,3 +8,6 @@ feature_engineering:
 model_building:
   max_iter: 1000
   random_state: 42
+
+model_promotion:
+  model_name: "Product-Review-Sentiment-Model"

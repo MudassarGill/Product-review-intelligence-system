@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/data/data_ingestion.py
       hash: md5
-      md5: 0b781a177ff74bcce181422320f14441
-      size: 3456
+      md5: bbf3e3e2e6570e6770e50cefae05b8d8
+      size: 3746
     params:
       params.yaml:
         data_ingestion.random_state: 42
@@ -84,7 +84,7 @@ stages:
       md5: e01c3163d5544fcaa04e9d07a69070c9
       size: 1859
   model_building:
-    cmd: python models/model_building.py
+    cmd: python scripts/model_building.py
     deps:
     - path: data/features/X_train.npy
       hash: md5
@@ -94,10 +94,10 @@ stages:
       hash: md5
       md5: 0af01256e1e394900309ea33ebacdb49
       size: 911011
-    - path: models/model_building.py
+    - path: scripts/model_building.py
       hash: md5
-      md5: b97f93d7988943b2ecba91c8c4bc1eff
-      size: 2654
+      md5: 9b950c2c648d9779627f6142d5dee2df
+      size: 1584
     params:
       params.yaml:
         model_building.max_iter: 1000
@@ -108,7 +108,7 @@ stages:
       md5: cb35b4b84bdf37168309d4c35c401e16
       size: 2239
   model_evaluation:
-    cmd: python models/model_evaluation.py
+    cmd: python scripts/model_evaluation.py
     deps:
     - path: data/features/X_test.npy
       hash: md5
@@ -122,14 +122,44 @@ stages:
       hash: md5
       md5: cb35b4b84bdf37168309d4c35c401e16
       size: 2239
-    - path: models/model_evaluation.py
+    - path: scripts/model_evaluation.py
       hash: md5
-      md5: 2d2df5a8b11e762725568ac4886f0c18
-      size: 3956
+      md5: 98d884103c4d0d70e0486eb363d8301a
+      size: 5776
+    outs:
+    - path: reports/metrics.json
+      hash: md5
+      md5: 07e99439b72010ada7183725836af0bc
+      size: 143
   model_registry:
-    cmd: python models/model_regestry.py
+    cmd: python scripts/model_regestry.py --experiment_name 
+      Logistic-Regression-baseline --model_name Product-Review-Sentiment-Model 
+      --stage Staging
     deps:
-    - path: models/model_regestry.py
+    - path: reports/metrics.json
       hash: md5
-      md5: 7a12d3ed95bb0aa14b20db1952c174d9
-      size: 3571
+      md5: 07e99439b72010ada7183725836af0bc
+      size: 143
+    - path: scripts/model_regestry.py
+      hash: md5
+      md5: 46f3f9247514b1a734d28bdf917e530f
+      size: 6277
+    outs:
+    - path: reports/registry_status.txt
+      hash: md5
+      md5: 157245e1d1f85e4d35cffdf300539a87
+      size: 82
+  model_promotion:
+    cmd: python scripts/model_promotion.py
+    deps:
+    - path: reports/registry_status.txt
+      hash: md5
+      md5: 157245e1d1f85e4d35cffdf300539a87
+      size: 82
+    - path: scripts/model_promotion.py
+      hash: md5
+      md5: 25ccd0e07b9ae7079eecbebb7137db33
+      size: 2942
+    params:
+      params.yaml:
+        model_promotion.model_name: Product-Review-Sentiment-Model

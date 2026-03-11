@@ -8,6 +8,7 @@ import mlflow
 import dagshub
 import pandas as pd
 import uvicorn
+from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
@@ -59,14 +60,27 @@ async def lifespan(app: FastAPI):
         # 2. Attempt to load Model from MLflow Registry
         try:
             print("Connecting to DagsHub MLflow Server...")
-            dagshub.init(repo_owner='mudassarhussain6533', repo_name='Product-review-intelligence-system', mlflow=True)
+            # Load environment variables
+            load_dotenv()
+            repo_owner = os.getenv("DAGSHUB_REPO_OWNER", "mudassarhussain6533")
+            repo_name = os.getenv("DAGSHUB_REPO_NAME", "Product-review-intelligence-system")
+            dagshub_token = os.getenv("CAPSTONE_TEST")
+
+            if dagshub_token:
+                # Explicitly set MLflow credentials using the token
+                os.environ['MLFLOW_TRACKING_USERNAME'] = repo_owner
+                os.environ['MLFLOW_TRACKING_PASSWORD'] = dagshub_token
+                dagshub.init(repo_owner=repo_owner, repo_name=repo_name, mlflow=True)
+            else:
+                print("Warning: CAPSTONE_TEST not found. Model registry access may fail.")
+                dagshub.init(repo_owner=repo_owner, repo_name=repo_name, mlflow=True)
             
             model_name = "Product-Review-Sentiment-Model"
-            stage = "Staging"
+            stage = "Production"
             
             print(f"Attempting to fetch '{model_name}' at stage '{stage}' from Registry...")
             model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{stage}")
-            print("Model loaded successfully from MLflow Remote Registry.")
+            print("Model loaded successfully from MLflow Remote Registry (Production).")
         except Exception as remote_err:
             print(f"Remote Registry load failed: {remote_err}")
             print("Falling back to local model loading...")

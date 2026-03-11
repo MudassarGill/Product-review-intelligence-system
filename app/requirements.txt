@@ -10,3 +10,4 @@ jinja2
 python-multipart
 mlflow
 dagshub
+rsa>=4.7

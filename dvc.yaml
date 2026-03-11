@@ -36,9 +36,9 @@ stages:
       - models/count_vectorizer.pkl
 
   model_building:
-    cmd: python models/model_building.py
+    cmd: python scripts/model_building.py
     deps:
-      - models/model_building.py
+      - scripts/model_building.py
       - data/features/X_train.npy
       - data/features/y_train.npy
     params:
@@ -48,14 +48,27 @@ stages:
       - models/logistic_regression.pkl
 
   model_evaluation:
-    cmd: python models/model_evaluation.py
+    cmd: python scripts/model_evaluation.py
     deps:
-      - models/model_evaluation.py
+      - scripts/model_evaluation.py
       - models/logistic_regression.pkl
       - data/features/X_test.npy
       - data/features/y_test.npy
+    metrics:
+      - reports/metrics.json
 
   model_registry:
-    cmd: python models/model_regestry.py
+    cmd: python scripts/model_regestry.py --experiment_name Logistic-Regression-baseline --model_name Product-Review-Sentiment-Model --stage Staging
     deps:
-      - models/model_regestry.py
+      - scripts/model_regestry.py
+      - reports/metrics.json
+    outs:
+      - reports/registry_status.txt
+
+  model_promotion:
+    cmd: python scripts/model_promotion.py
+    deps:
+      - scripts/model_promotion.py
+      - reports/registry_status.txt
+    params:
+      - model_promotion.model_name
