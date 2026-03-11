@@ -1,0 +1,64 @@
+# ============================================
+# Docker Ignore for Product Review Intelligence
+# ============================================
+
+# Virtual environments
+myvenv/
+venv/
+.venv/
+env/
+
+# Git
+.git/
+.github/
+
+# DVC cache and temp
+.dvc/cache
+.dvc/tmp
+
+# Data (too large for Docker image)
+data/
+
+# Notebooks
+notebooks/
+*.ipynb
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+diag_test.py
+diag_simple.py
+mlflow_test.py
+tmp_check_mlflow.py
+read_cols.py
+verify_preprocess.py
+test_environment.py
+
+# Reports (generated at runtime)
+reports/
+
+# Scripts (not needed in app container)
+scripts/
+src/
+docs/
+references/
+scrpits/
+tests/

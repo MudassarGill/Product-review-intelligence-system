@@ -75,23 +75,22 @@ logs/
 
 # ===============================
 
-# Dataset / Data files
+# Dataset / Data files (leading / = top-level only)
 
 # ===============================
 
-data/
+/data/
 *.csv
 *.tsv
 *.xlsx
-*.json
 
 # ===============================
 
-# Models
+# Models (leading / = top-level only)
 
 # ===============================
 
-models/
+/models/
 *.pkl
 *.joblib
 *.h5
