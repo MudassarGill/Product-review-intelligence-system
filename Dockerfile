@@ -26,8 +26,9 @@ RUN python -c "import nltk; nltk.download('stopwords', download_dir='/usr/local/
 # Copy application code
 COPY app/ /app/
 
-# Copy local model files as fallback (if they exist during build)
-COPY models/ /app/models/
+# Create models directory and copy local model files if they exist
+RUN mkdir -p /app/models
+COPY models/*.pkl /app/models/
 
 # Expose the app port
 EXPOSE 8000
