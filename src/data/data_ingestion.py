@@ -83,7 +83,7 @@ def main():
         
         if not aws_access_key or not aws_secret_key:
             logging.error("AWS credentials not found in environment variables.")
-            return
+            raise ValueError("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be set in environment variables.")
 
         s3 = S3Operations(
             bucket_name="data-info-s3",
