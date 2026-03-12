@@ -132,7 +132,6 @@ async def predict_sentiment(request: ReviewRequest):
     """API Endpoint to predict sentiment of a single review."""
     if model is None or vectorizer is None:
         raise HTTPException(status_code=503, detail="Models are not loaded. Server is unavailable.")
-        
     try:
         # Preprocess text
         cleaned_text = preprocess_input(request.text)
