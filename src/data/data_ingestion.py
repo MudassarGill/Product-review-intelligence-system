@@ -110,7 +110,7 @@ def main():
 
     except Exception as e:
         logging.error(f"Data ingestion failed: {e}")
-        print(f"Error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()    
